@@ -10,7 +10,7 @@ import rateLimit from 'express-rate-limit';
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = 3040;
 
 // Trust reverse proxy (Nginx, Cloud Run, cPanel proxy)
 app.set('trust proxy', 1);
