@@ -1,0 +1,8 @@
+{
+  "name": "Smm panel nepal",
+  "description": "High-speed social media marketing reseller panel in Nepalese Rupee (NPR) with protected admin panel, Fonepay QR deposit verification, affiliate program, and automated order dispatch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
