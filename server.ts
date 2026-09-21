@@ -10,7 +10,15 @@ import rateLimit from 'express-rate-limit';
 dotenv.config();
 
 const app = express();
-const PORT = 3040;
+
+// Auto Port Resolution:
+// Uses process.env.PORT provided by the hosting panel (cPanel, CloudLinux Node.js Selector,
+// Phusion Passenger, Plesk, Heroku, Render, etc.).
+// If process.env.PORT is not set, port 0 tells the operating system to automatically
+// allocate and bind to an available free port.
+const PORT = process.env.PORT
+  ? (isNaN(Number(process.env.PORT)) ? process.env.PORT : Number(process.env.PORT))
+  : 0;
 
 // Trust reverse proxy (Nginx, Cloud Run, cPanel proxy)
 app.set('trust proxy', 1);
@@ -1800,7 +1808,7 @@ app.post('/api/system/upgrade-package', async (req, res) => {
         if (parsed.version) detectedVersion = parsed.version;
         if (Array.isArray(parsed.services)) serviceUpdatesCount = parsed.services.length;
         if (parsed.settings) settingsApplied = true;
-        if (Array.isArray(parsed.patches)) patchList = parsed.patches;
+        if (Array.isArray(parsed.patches)) patchList = patchList;
       } catch (e) {
         // file is binary/zip/archive
       }
@@ -1853,9 +1861,9 @@ app.post('/api/system/upgrade-package', async (req, res) => {
 
 // Start Server with Vite middleware for dev / static for prod
 async function startServer() {
-  if (process.env.PORT !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true, host: '0.0.0.0', port: PORT },
+      server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -1867,9 +1875,17 @@ async function startServer() {
     });
   }
 
-  app.listen(process.env.PORT, '0.0.0.0', () => {
-    console.log(`🚀 SMM Panel Pro Server running on http://0.0.0.0:${PORT}`);
-  });
+  // Bind to auto port (or socket path if provided by Passenger / cPanel)
+  const isSocket = typeof PORT === 'string' && (PORT.startsWith('/') || PORT.startsWith('\\\\'));
+  const server = isSocket
+    ? app.listen(PORT, () => {
+        console.log(`Server successfully started on socket: ${PORT}`);
+      })
+    : app.listen(PORT, () => {
+        const address = server.address();
+        const actualPort = typeof address === 'object' && address ? address.port : PORT;
+        console.log(`Server successfully started on auto-assigned port: ${actualPort}`);
+      });
 }
 
 startServer();
