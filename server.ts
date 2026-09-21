@@ -1853,7 +1853,7 @@ app.post('/api/system/upgrade-package', async (req, res) => {
 
 // Start Server with Vite middleware for dev / static for prod
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.PORT !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true, host: '0.0.0.0', port: PORT },
       appType: 'spa',
@@ -1867,7 +1867,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`🚀 SMM Panel Pro Server running on http://0.0.0.0:${PORT}`);
   });
 }
